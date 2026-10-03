@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
 import { X, RefreshCw, LogOut, Save } from 'lucide-react';
 import { saveRegisteredUser, setUserSession } from '../utils/storage';
+import { isValidPhoneNumber, normalizePhoneNumber } from '../utils/profile';
 
-export default function ProfileModal({ currentUser, onClose, onLogout, onResetDemoData, onUserUpdate, demoMode = true }) {
+export default function ProfileModal({ currentUser, onClose, onLogout, onResetDemoData, onUserUpdate, onPhoneAdded, requirePhone = false, demoMode = true }) {
   const [name, setName] = useState(currentUser?.name || '');
   const [flatNo, setFlatNo] = useState(currentUser?.flatNo || '');
+  const [phone, setPhone] = useState(currentUser?.phone || '');
   const [isSaved, setIsSaved] = useState(false);
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!isValidPhoneNumber(phone)) {
+      alert('Enter a valid phone number (8–15 digits).');
+      return;
+    }
     const updatedUser = {
       ...currentUser,
       name: name.trim(),
-      flatNo: flatNo.trim().toUpperCase()
+      flatNo: flatNo.trim().toUpperCase(),
+      phone: normalizePhoneNumber(phone)
     };
     try {
       const savedUser = await onUserUpdate(updatedUser);
@@ -21,6 +28,10 @@ export default function ProfileModal({ currentUser, onClose, onLogout, onResetDe
       setUserSession(finalUser);
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
+      if (requirePhone && isValidPhoneNumber(finalUser.phone)) {
+        onPhoneAdded?.(finalUser);
+        onClose();
+      }
     } catch (err) {
       alert(err.message || 'Could not save profile changes.');
     }
@@ -42,6 +53,10 @@ export default function ProfileModal({ currentUser, onClose, onLogout, onResetDe
             <X size={18} />
           </button>
         </div>
+
+        {requirePhone && (
+          <p role="status" style={{ color: '#fbbf24', fontSize: '0.82rem', marginBottom: '14px' }}>Add a valid phone number to continue with your booking. It will be visible to residents when you book.</p>
+        )}
 
         <form onSubmit={handleSave}>
           <div style={{ textAlign: 'center', marginBottom: '16px' }}>
@@ -77,6 +92,12 @@ export default function ProfileModal({ currentUser, onClose, onLogout, onResetDe
               onChange={(e) => setName(e.target.value)}
               required
             />
+          </div>
+
+          <div className="input-group">
+            <label className="input-label">Phone Number</label>
+            <input type="tel" className="input-field" autoComplete="tel" placeholder="Include country code if needed" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+            <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Visible to other residents when you book.</small>
           </div>
 
           <div className="input-group">

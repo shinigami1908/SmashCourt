@@ -21,6 +21,7 @@ import {
   resetDemoData
 } from './utils/storage';
 import { getFormattedDate } from './data/mockData';
+import { isValidPhoneNumber } from './utils/profile';
 import { firebaseAuth, isFirebaseConfigured } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import {
@@ -40,6 +41,8 @@ export default function App() {
   const [activeSlotForBooking, setActiveSlotForBooking] = useState(null);
   const [activeSlotForDetails, setActiveSlotForDetails] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [requirePhoneForBooking, setRequirePhoneForBooking] = useState(false);
+  const [pendingBookingSlot, setPendingBookingSlot] = useState(null);
 
   // Initial Load & Session Retrieval
   useEffect(() => {
@@ -113,6 +116,12 @@ export default function App() {
   };
 
   const handleSelectSlot = (slotItem) => {
+    if (!slotItem?.booking && !isValidPhoneNumber(currentUser?.phone)) {
+      setPendingBookingSlot(slotItem);
+      setRequirePhoneForBooking(true);
+      setShowProfileModal(true);
+      return;
+    }
     if (slotItem?.date) {
       for (let i = 0; i <= 2; i++) {
         if (getFormattedDate(i) === slotItem.date) {
@@ -129,6 +138,9 @@ export default function App() {
   };
 
   const handleConfirmBooking = async (newBookingData) => {
+    if (!isValidPhoneNumber(currentUser?.phone)) {
+      throw new Error('Add a valid phone number to your profile before booking.');
+    }
     try {
       if (isFirebaseConfigured) {
         await createFirestoreBooking(newBookingData);
@@ -320,7 +332,14 @@ export default function App() {
           {showProfileModal && (
             <ProfileModal
               currentUser={currentUser}
-              onClose={() => setShowProfileModal(false)}
+              onClose={() => { setShowProfileModal(false); setRequirePhoneForBooking(false); setPendingBookingSlot(null); }}
+              requirePhone={requirePhoneForBooking}
+              onPhoneAdded={() => {
+                setShowProfileModal(false);
+                setRequirePhoneForBooking(false);
+                if (pendingBookingSlot) setActiveSlotForBooking(pendingBookingSlot);
+                setPendingBookingSlot(null);
+              }}
               onLogout={handleLogout}
               onResetDemoData={handleResetDemoData}
               demoMode={!isFirebaseConfigured}

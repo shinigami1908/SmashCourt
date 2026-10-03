@@ -475,3 +475,19 @@ h1, h2, h3, h4, .font-heading {
   .booking-modal__note .input-label { margin-bottom: 5px; font-size: 0.76rem; }
   .booking-modal__submit { position: sticky; bottom: -10px; z-index: 2; margin-top: 0 !important; min-height: 46px; box-shadow: 0 -8px 16px #111c30; }
 }
+
+
+.resident-profile-overlay { z-index: 1100; }
+.resident-profile-modal { max-width: 400px; }
+.resident-profile-modal__identity { display: flex; align-items: center; flex-direction: column; gap: 7px; margin: 8px 0 20px; }
+.resident-profile-modal__avatar { width: 72px; height: 72px; display: grid; place-items: center; overflow: hidden; border-radius: 50%; border: 2px solid var(--primary-light); background: linear-gradient(135deg, #10b981, #06b6d4); font-size: 2rem; }
+.resident-profile-modal__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.resident-profile-modal__identity > strong { color: #fff; font-size: 1.05rem; }
+.resident-profile-modal__identity > span { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.84rem; }
+.resident-profile-modal__phone { display: flex; align-items: center; gap: 11px; padding: 13px; border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--primary-light); background: rgba(16,185,129,.06); }
+.resident-profile-modal__phone > div { display: flex; flex-direction: column; gap: 2px; }
+.resident-profile-modal__phone small { color: var(--text-subtle); font-size: 0.72rem; }
+.resident-profile-modal__phone a, .resident-profile-modal__phone span { color: #fff; font-size: 0.92rem; text-decoration: none; }
+.resident-profile-modal__phone a:hover { text-decoration: underline; }
+.profile-link { border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-align: inherit; cursor: pointer; }
+.profile-link:hover { color: var(--primary-light); text-decoration: underline; text-underline-offset: 2px; }

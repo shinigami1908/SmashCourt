@@ -4,6 +4,7 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { isFirebaseConfigured, firebaseAuth } from '../firebase';
 import { getRegisteredUser, saveRegisteredUser, setUserSession } from '../utils/storage';
 import { getFirestoreUser, saveFirestoreUser } from '../utils/firebaseBookings';
+import { isValidPhoneNumber, normalizePhoneNumber } from '../utils/profile';
 
 export default function AuthModal({ onLoginSuccess }) {
   const [step, setStep] = useState('sign-in');
@@ -11,6 +12,7 @@ export default function AuthModal({ onLoginSuccess }) {
   const [googleProfile, setGoogleProfile] = useState(null);
   const [name, setName] = useState('');
   const [flatNo, setFlatNo] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,8 +36,11 @@ export default function AuthModal({ onLoginSuccess }) {
       const existingProfile = await getFirestoreUser(account.uid);
       const googlePhoto = account.photoURL || '🏸';
       const identity = {
+        ...existingProfile,
         uid: account.uid,
-        phone: existingProfile?.phone || account.phoneNumber?.replace(/\D/g, '') || account.uid,
+        phone: isValidPhoneNumber(existingProfile?.phone)
+          ? existingProfile.phone
+          : isValidPhoneNumber(account.phoneNumber) ? account.phoneNumber : '',
         email: account.email || '',
         name: existingProfile?.name || account.displayName || '',
         flatNo: existingProfile?.flatNo || '',
@@ -43,13 +48,15 @@ export default function AuthModal({ onLoginSuccess }) {
         googlePhotoURL: account.photoURL || ''
       };
 
-      if (existingProfile?.flatNo) {
+      if (existingProfile?.flatNo && isValidPhoneNumber(identity.phone)) {
         const savedProfile = await saveFirestoreUser(account.uid, { ...existingProfile, ...identity });
         finishLogin(savedProfile);
       } else {
         setFirebaseUid(account.uid);
         setGoogleProfile(identity);
         setName(identity.name);
+        setFlatNo(identity.flatNo);
+        setPhone(identity.phone);
         setStep('register');
       }
     } catch (err) {
@@ -77,8 +84,8 @@ export default function AuthModal({ onLoginSuccess }) {
 
   const handleRegister = async (event) => {
     event.preventDefault();
-    if (!name.trim() || !flatNo.trim()) {
-      setError('Enter your name and flat number to finish your resident profile.');
+    if (!name.trim() || !flatNo.trim() || !isValidPhoneNumber(phone)) {
+      setError('Enter your name, flat number, and a valid phone number to finish your resident profile.');
       return;
     }
     setError('');
@@ -88,6 +95,7 @@ export default function AuthModal({ onLoginSuccess }) {
       uid: firebaseUid,
       name: name.trim(),
       flatNo: flatNo.trim().toUpperCase(),
+      phone: normalizePhoneNumber(phone),
       avatar: googleProfile?.googlePhotoURL || '🏸',
       registeredAt: new Date().toISOString()
     };
@@ -159,6 +167,11 @@ export default function AuthModal({ onLoginSuccess }) {
             <div className="input-group">
               <label className="input-label">Full Name</label>
               <input className="input-field" value={name} onChange={(event) => setName(event.target.value)} required />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Phone Number</label>
+              <input type="tel" className="input-field" autoComplete="tel" placeholder="Include country code if needed" value={phone} onChange={(event) => setPhone(event.target.value)} required />
+              <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Other residents can see it when you book.</small>
             </div>
             <div className="input-group">
               <label className="input-label">Tower & Flat Number</label>

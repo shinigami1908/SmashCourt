@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Plus, Users, Lock, Clock, ChevronRight, Flame, Calendar as CalendarIcon } from 'lucide-react';
 import { getFormattedDate } from '../data/mockData';
 import { parseTimeToMinutes, getEndMinutes } from '../utils/storage';
+import ResidentProfileModal from './ResidentProfileModal';
 
 export default function TimetableGrid({ selectedOffset, bookings, currentUser, onSelectSlot }) {
   const [filter, setFilter] = useState('all'); // 'all' | 'open' | 'mine'
+  const [viewingProfile, setViewingProfile] = useState(null);
 
   const dateStr = getFormattedDate(selectedOffset);
   const now = new Date();
@@ -197,7 +199,7 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                 }}>
                   {isPrivate ? (
                     <div style={{ color: 'var(--text-muted)' }}>
-                      Reserved by <strong>{b.bookedBy.name}</strong> ({b.bookedBy.flatNo})
+                      Reserved by <button type="button" className="profile-link" onClick={(event) => { event.stopPropagation(); setViewingProfile(b.bookedBy); }}><strong>{b.bookedBy.name}</strong> ({b.bookedBy.flatNo})</button>
                       {b.note && <span style={{ fontStyle: 'italic', marginLeft: '6px' }}>• "{b.note}"</span>}
                     </div>
                   ) : (
@@ -207,16 +209,19 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                           {b.matchInfo?.matchType || 'Doubles'} • {b.matchInfo?.skillLevel || 'Intermediate'}
                         </span>
                         <span style={{ color: 'var(--text-subtle)', fontSize: '0.78rem' }}>
-                          Host: {b.bookedBy.name} ({b.bookedBy.flatNo})
+                          Host: <button type="button" className="profile-link" onClick={(event) => { event.stopPropagation(); setViewingProfile(b.bookedBy); }}>{b.bookedBy.name} ({b.bookedBy.flatNo})</button>
                         </span>
                       </div>
 
                       {/* Players list with photos/avatars */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                         {b.players?.map((p, idx) => (
-                          <div
+                          <button
+                            type="button"
                             key={idx}
-                            title={`${p.name} (${p.flatNo})`}
+                            className="profile-link"
+                            onClick={(event) => { event.stopPropagation(); setViewingProfile(p); }}
+                            title={`View ${p.name}'s profile`}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -224,7 +229,8 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                               background: 'rgba(255, 255, 255, 0.08)',
                               padding: '3px 8px',
                               borderRadius: 'var(--radius-full)',
-                              border: p.phone === currentUser.phone ? '1px solid var(--primary)' : '1px solid transparent'
+                              border: p.phone === currentUser.phone ? '1px solid var(--primary)' : '1px solid transparent',
+                              color: 'inherit', font: 'inherit', cursor: 'pointer'
                             }}
                           >
                             <div style={{ width: '20px', height: '20px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -237,7 +243,7 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: p.phone === currentUser.phone ? '#34d399' : '#e2e8f0' }}>
                               {p.flatNo}
                             </span>
-                          </div>
+                          </button>
                         ))}
 
                         {/* Open Spots indicator */}
@@ -278,6 +284,7 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
           })
         )}
       </div>
+      <ResidentProfileModal profile={viewingProfile} onClose={() => setViewingProfile(null)} />
     </div>
   );
 }

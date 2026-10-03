@@ -3,6 +3,7 @@ import { X, Lock, Users, Sparkles, AlertCircle, Clock } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { getDateLabel, getFormattedDate, GENERATE_TIME_OPTIONS, GENERATE_START_TIME_OPTIONS } from '../data/mockData';
 import { isTimingOverlapping, getStartMinutes, getEndMinutes, overlapsChildrenClasses } from '../utils/storage';
+import { isValidPhoneNumber } from '../utils/profile';
 
 export default function BookingModal({ slotItem, selectedOffset, currentUser, onClose, onConfirmBooking, firebaseMode = false }) {
   const [bookingType, setBookingType] = useState('open');
@@ -74,6 +75,11 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!isValidPhoneNumber(currentUser?.phone)) {
+      setError('Add a valid phone number to your profile before booking.');
+      return;
+    }
 
     const startMins = getStartMinutes(startTime);
     const endMins = getEndMinutes(endTime);

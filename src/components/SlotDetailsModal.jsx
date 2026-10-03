@@ -3,6 +3,7 @@ import { X, Share2, UserPlus, LogOut, Trash2, Flame, Clock, Edit3, Save, AlertCi
 import confetti from 'canvas-confetti';
 import { getDateLabel, GENERATE_START_TIME_OPTIONS, GENERATE_TIME_OPTIONS, getFormattedDate } from '../data/mockData';
 import { parseTimeToMinutes, getEndMinutes, getStartMinutes, overlapsChildrenClasses } from '../utils/storage';
+import ResidentProfileModal from './ResidentProfileModal';
 
 export default function SlotDetailsModal({
   slotItem,
@@ -43,6 +44,7 @@ export default function SlotDetailsModal({
   const [maxPlayers, setMaxPlayers] = useState(booking.matchInfo?.maxPlayers && booking.matchInfo?.maxPlayers !== 'unlimited' ? booking.matchInfo.maxPlayers : 4);
   const [note, setNote] = useState(booking.note || booking.matchInfo?.note || '');
   const [editError, setEditError] = useState('');
+  const [viewingProfile, setViewingProfile] = useState(null);
 
   const handleStartTimeChange = (newStart) => {
     setStartTime(newStart);
@@ -316,16 +318,16 @@ export default function SlotDetailsModal({
                   marginBottom: '20px'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}>
+                    <button type="button" className="profile-link" aria-label={`View ${booking.bookedBy.name} profile`} onClick={() => setViewingProfile(booking.bookedBy)} style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #10b981, #06b6d4)', flex: '0 0 auto' }}>
                       {booking.bookedBy.avatar && (/^(https?:\/\/|data:image)/i.test(booking.bookedBy.avatar)) ? (
                         <img src={booking.bookedBy.avatar} alt="Host" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         <span style={{ fontSize: '1.4rem' }}>{booking.bookedBy.avatar || '🏸'}</span>
                       )}
-                    </div>
+                    </button>
                     <div>
                       <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>
-                        {booking.bookedBy.name}
+                        <button type="button" className="profile-link" onClick={() => setViewingProfile(booking.bookedBy)}>{booking.bookedBy.name}</button>
                       </div>
                       <div style={{ fontSize: '0.82rem', color: '#67e8f9', fontWeight: 600 }}>
                         Flat Number {booking.bookedBy.flatNo}
@@ -428,16 +430,16 @@ export default function SlotDetailsModal({
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}>
+                            <button type="button" className="profile-link" aria-label={`View ${p.name} profile`} onClick={() => setViewingProfile(p)} style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #10b981, #06b6d4)', flex: '0 0 auto' }}>
                               {p.avatar && (/^(https?:\/\/|data:image)/i.test(p.avatar)) ? (
                                 <img src={p.avatar} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               ) : (
                                 <span style={{ fontSize: '1rem' }}>{p.avatar || '🏸'}</span>
                               )}
-                            </div>
+                            </button>
                             <div>
                               <strong style={{ fontSize: '0.9rem', color: isUserThisPlayer ? '#34d399' : '#fff' }}>
-                                {p.name} {isUserThisPlayer && '(You)'}
+                                <button type="button" className="profile-link" onClick={() => setViewingProfile(p)}>{p.name} {isUserThisPlayer && '(You)'}</button>
                               </strong>
                               <div style={{ fontSize: '0.75rem', color: 'var(--text-subtle)' }}>
                                 Flat {p.flatNo}
@@ -530,6 +532,7 @@ export default function SlotDetailsModal({
           </div>
         )}
       </div>
+      <ResidentProfileModal profile={viewingProfile} onClose={() => setViewingProfile(null)} />
     </div>
   );
 }
