@@ -124,7 +124,7 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
               <div
                 key={b.id}
                 onClick={() => onSelectSlot({ date: dateStr, booking: b })}
-                className="glass-panel"
+                className={`glass-panel booking-card${isMine ? ' is-mine' : ''}`}
                 style={{
                   padding: '16px',
                   cursor: 'pointer',
@@ -141,9 +141,9 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                     : 'var(--bg-card)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="booking-card__heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   {/* Timing & Badge */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div className="booking-card__labels" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -152,7 +152,7 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                       fontWeight: 800,
                       fontSize: '1rem',
                       color: '#ffffff'
-                    }}>
+                    }} className="booking-card__time">
                       <Clock size={16} color="var(--primary-light)" />
                       {b.startTime} - {b.endTime}
                     </div>
@@ -189,7 +189,7 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                 </div>
 
                 {/* Sub info */}
-                <div style={{
+                <div className="booking-card__details" style={{
                   marginTop: '12px',
                   paddingTop: '10px',
                   borderTop: '1px solid rgba(255, 255, 255, 0.06)',
@@ -202,7 +202,7 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                     </div>
                   ) : (
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <div className="booking-card__match" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                         <span style={{ color: '#fbbf24', fontWeight: 700 }}>
                           {b.matchInfo?.matchType || 'Doubles'} • {b.matchInfo?.skillLevel || 'Intermediate'}
                         </span>

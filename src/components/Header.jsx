@@ -6,7 +6,7 @@ export default function Header({ user, bookings, onOpenProfile }) {
   const activeBookingNow = bookings.find((b) => isBookingHappeningNow(b));
 
   return (
-    <header className="glass-panel" style={{ padding: '16px 20px', marginBottom: '20px' }}>
+    <header className="glass-panel app-header" style={{ padding: '16px 20px', marginBottom: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
         {/* Logo & Society Title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -29,7 +29,7 @@ export default function Header({ user, bookings, onOpenProfile }) {
               SmashCourt
             </h1>
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              <Shield size={11} color="var(--primary-light)" /> Greenwood Heights Society
+              <Shield size={11} color="var(--primary-light)" /> Meda Heights
             </span>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function Header({ user, bookings, onOpenProfile }) {
       </div>
 
       {/* Live Court Status Indicator */}
-      <div style={{
+      <div className={`court-status${activeBookingNow ? ' is-occupied' : ''}`} style={{
         marginTop: '14px',
         padding: '10px 14px',
         borderRadius: 'var(--radius-md)',
@@ -86,7 +86,7 @@ export default function Header({ user, bookings, onOpenProfile }) {
         justifyContent: 'space-between',
         fontSize: '0.82rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="court-status__primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
             width: '8px',
             height: '8px',
@@ -101,11 +101,11 @@ export default function Header({ user, bookings, onOpenProfile }) {
         </div>
 
         {activeBookingNow ? (
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+          <div className="court-status__secondary" style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
             Booked by <strong>{activeBookingNow.bookedBy.name}</strong> ({activeBookingNow.bookedBy.flatNo})
           </div>
         ) : (
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+          <div className="court-status__secondary" style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
             Ready for play • Book your slot
           </div>
         )}

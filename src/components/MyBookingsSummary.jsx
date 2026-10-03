@@ -36,7 +36,7 @@ export default function MyBookingsSummary({ currentUser, bookings, onSelectSlot 
             <div
               key={b.id}
               onClick={() => onSelectSlot({ booking: b, date: b.date })}
-              className="glass-panel"
+              className="glass-panel my-booking-card"
               style={{
                 padding: '12px 16px',
                 display: 'flex',
@@ -47,8 +47,8 @@ export default function MyBookingsSummary({ currentUser, bookings, onSelectSlot 
                 background: 'rgba(16, 185, 129, 0.06)'
               }}
             >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="my-booking-card__content">
+                <div className="my-booking-card__heading" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem' }}>
                     {dateLabel} • {b.startTime} - {b.endTime}
                   </span>

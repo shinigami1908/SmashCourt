@@ -376,3 +376,40 @@
   .outlook-calendar__legend { justify-content: flex-start; gap: 10px; }
   .outlook-calendar__scroll { max-height: 70vh; }
 }
+
+
+/* Compact booking surfaces for narrow screens. */
+@media (max-width: 620px) {
+  .app-header { padding: 13px 14px !important; margin-bottom: 14px !important; }
+  .app-header > div:first-child { gap: 8px !important; }
+  .app-header h1 { font-size: 1.12rem !important; }
+  .app-header span { font-size: 0.68rem !important; }
+  .app-header .court-status {
+    align-items: flex-start !important;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 10px !important;
+    padding: 8px 10px !important;
+    font-size: 0.75rem !important;
+  }
+  .court-status__primary { min-width: 0; align-items: flex-start !important; gap: 7px !important; }
+  .court-status__primary > span:last-child { line-height: 1.35; }
+  .court-status__secondary { padding-left: 15px; font-size: 0.7rem !important; line-height: 1.35; }
+
+  .booking-card { padding: 12px !important; border-radius: 14px !important; }
+  .booking-card__heading { align-items: flex-start !important; gap: 6px; }
+  .booking-card__labels { align-items: flex-start !important; flex-direction: column; gap: 6px !important; min-width: 0; }
+  .booking-card__time { font-size: 0.9rem !important; gap: 5px !important; }
+  .booking-card__time svg { width: 14px; height: 14px; flex: 0 0 auto; }
+  .booking-card__labels .badge { font-size: 0.65rem; padding: 3px 7px; }
+  .booking-card__labels > span:last-child { padding: 2px 7px !important; font-size: 0.62rem !important; }
+  .booking-card__details { margin-top: 9px !important; padding-top: 8px !important; font-size: 0.78rem !important; }
+  .booking-card__match { align-items: flex-start !important; flex-direction: column; gap: 3px; margin-bottom: 7px !important; }
+  .booking-card__match > span:last-child { font-size: 0.7rem !important; }
+
+  .my-booking-card { padding: 10px 12px !important; border-radius: 14px !important; }
+  .my-booking-card__content { min-width: 0; flex: 1; }
+  .my-booking-card__heading { align-items: flex-start !important; flex-wrap: wrap; gap: 5px !important; }
+  .my-booking-card__heading > span:first-child { font-size: 0.8rem !important; line-height: 1.35; }
+  .my-booking-card__heading .badge { font-size: 0.62rem !important; padding: 3px 7px; }
+}
