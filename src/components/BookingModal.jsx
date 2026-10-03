@@ -152,7 +152,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div className="modal-content booking-modal">
         {/* Header */}
         <div className="modal-header">
           <div>
@@ -186,7 +186,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form className="booking-modal__form" onSubmit={handleSubmit}>
           {/* Custom Time Range Selector */}
           <div style={{
             background: 'rgba(15, 23, 42, 0.6)',
@@ -194,7 +194,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
             borderRadius: 'var(--radius-md)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             marginBottom: '16px'
-          }}>
+          }} className="booking-modal__times">
             <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
               <Clock size={16} color="var(--primary-light)" /> Select Booking Duration
             </label>
@@ -236,8 +236,8 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
           </div>
 
           {/* Booking Type Selector */}
-          <div className="input-group">
-            <label className="input-label">Select Booking Type</label>
+          <div className="input-group booking-modal__types">
+            <label className="input-label">Booking Type</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               {/* Option A: Open Match Poll */}
               <div
@@ -255,6 +255,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
                   transition: 'all 0.2s ease',
                   position: 'relative'
                 }}
+                className="booking-modal__type-option"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <Users size={18} color="#fbbf24" />
@@ -300,6 +301,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
                   transition: 'all 0.2s ease',
                   position: 'relative'
                 }}
+                className="booking-modal__type-option"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <Lock size={18} color="#67e8f9" />
@@ -339,7 +341,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
               padding: '16px',
               marginBottom: '16px',
               border: '1px solid rgba(245, 158, 11, 0.2)'
-            }}>
+            }} className="booking-modal__match-options">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                 <div className="input-group" style={{ marginBottom: 0 }}>
                   <label className="input-label">Format</label>
@@ -408,7 +410,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
             </div>
           )}
 
-          <div className="input-group">
+          <div className="input-group booking-modal__note">
             <label className="input-label">
               {bookingType === 'open' ? 'Note for society players (Optional)' : 'Booking Note (Optional)'}
             </label>
@@ -421,7 +423,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
             />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-full" style={{ marginTop: '8px' }} disabled={isToday && startTimeOptions.length === 0}>
+          <button type="submit" className="btn btn-primary btn-full booking-modal__submit" style={{ marginTop: '8px' }} disabled={isToday && startTimeOptions.length === 0}>
             Confirm & Reserve Court <Sparkles size={18} />
           </button>
         </form>
