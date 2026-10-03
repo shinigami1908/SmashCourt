@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsBooking(bookingId) {
+      return signedIn()
+        && get(/databases/$(database)/documents/bookings/$(bookingId)).data.bookedBy.uid == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read, create, update: if signedIn() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.bookedBy.uid == request.auth.uid;
+      allow update: if signedIn() && (
+        (resource.data.bookedBy.uid == request.auth.uid
+          && request.resource.data.bookedBy.uid == request.auth.uid)
+        || (resource.data.type == 'open'
+          && request.resource.data.type == 'open'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['players', 'playerUids', 'bookedBy'])
+          && (request.auth.uid in resource.data.playerUids || request.auth.uid in request.resource.data.playerUids))
+      );
+      allow delete: if signedIn() && resource.data.bookedBy.uid == request.auth.uid;
+    }
+
+    match /courtSlots/{slotId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn()
+        && getAfter(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.bookedBy.uid == request.auth.uid;
+      allow delete: if signedIn() && ownsBooking(resource.data.bookingId);
+    }
+  }
+}

@@ -1,0 +1,378 @@
+.counter {
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+  margin-bottom: 24px;
+
+  &:hover {
+    border-color: var(--accent-border);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.hero {
+  position: relative;
+
+  .base,
+  .framework,
+  .vite {
+    inset-inline: 0;
+    margin: 0 auto;
+  }
+
+  .base {
+    width: 170px;
+    position: relative;
+    z-index: 0;
+  }
+
+  .framework,
+  .vite {
+    position: absolute;
+  }
+
+  .framework {
+    z-index: 1;
+    top: 34px;
+    height: 28px;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
+      scale(1.4);
+  }
+
+  .vite {
+    z-index: 0;
+    top: 107px;
+    height: 26px;
+    width: auto;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
+      scale(0.8);
+  }
+}
+
+#center {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  place-content: center;
+  place-items: center;
+  flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    padding: 32px 20px 24px;
+    gap: 18px;
+  }
+}
+
+#next-steps {
+  display: flex;
+  border-top: 1px solid var(--border);
+  text-align: left;
+
+  & > div {
+    flex: 1 1 0;
+    padding: 32px;
+    @media (max-width: 1024px) {
+      padding: 24px 20px;
+    }
+  }
+
+  .icon {
+    margin-bottom: 16px;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+#docs {
+  border-right: 1px solid var(--border);
+
+  @media (max-width: 1024px) {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+#next-steps ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+  margin: 32px 0 0;
+
+  .logo {
+    height: 18px;
+  }
+
+  a {
+    color: var(--text-h);
+    font-size: 16px;
+    border-radius: 6px;
+    background: var(--social-bg);
+    display: flex;
+    padding: 6px 12px;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: var(--shadow);
+    }
+    .button-icon {
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    li {
+      flex: 1 1 calc(50% - 8px);
+    }
+
+    a {
+      width: 100%;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+  }
+}
+
+#spacer {
+  height: 88px;
+  border-top: 1px solid var(--border);
+  @media (max-width: 1024px) {
+    height: 48px;
+  }
+}
+
+.ticks {
+  position: relative;
+  width: 100%;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4.5px;
+    border: 5px solid transparent;
+  }
+
+  &::before {
+    left: 0;
+    border-left-color: var(--border);
+  }
+  &::after {
+    right: 0;
+    border-right-color: var(--border);
+  }
+}
+
+.outlook-calendar {
+  padding: 20px;
+  overflow: hidden;
+}
+
+.outlook-calendar__header,
+.outlook-calendar__legend,
+.outlook-calendar__legend span,
+.outlook-calendar__event strong {
+  display: flex;
+  align-items: center;
+}
+
+.outlook-calendar__header {
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.outlook-calendar__header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.outlook-calendar__header h2 svg { color: var(--primary-light); }
+.outlook-calendar__header p { color: var(--text-muted); font-size: 0.8rem; margin-top: 3px; }
+
+.outlook-calendar__legend { gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.outlook-calendar__legend span { gap: 6px; color: var(--text-muted); font-size: 0.72rem; white-space: nowrap; }
+.outlook-calendar__legend i { width: 9px; height: 9px; border-radius: 3px; }
+.legend-private { background: #06b6d4; }
+.legend-open { background: #f59e0b; }
+.legend-mine { background: #34d399; }
+.legend-classes { background: #a78bfa; }
+
+.outlook-calendar__scroll {
+  overflow: auto;
+  max-height: min(76vh, 820px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  background: rgba(8, 15, 29, 0.78);
+  scrollbar-width: thin;
+}
+
+.outlook-calendar__canvas {
+  display: grid;
+  grid-template-columns: 68px repeat(3, minmax(210px, 1fr));
+  min-width: 760px;
+  position: relative;
+}
+
+.outlook-calendar__corner,
+.outlook-calendar__day-heading {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  min-height: 66px;
+  background: #11192b;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.outlook-calendar__corner {
+  left: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  color: var(--text-subtle);
+  font-size: 0.58rem;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.12);
+}
+
+.outlook-calendar__day-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border-right: 1px solid rgba(255,255,255,0.09);
+}
+
+.outlook-calendar__day-heading span { color: var(--text-muted); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
+.outlook-calendar__day-heading strong { color: #f8fafc; font-size: 1.02rem; line-height: 1.25; }
+.outlook-calendar__day-heading small { color: var(--text-subtle); font-size: 0.62rem; }
+.outlook-calendar__day-heading.is-today { box-shadow: inset 0 -2px var(--primary); }
+.outlook-calendar__day-heading.is-today strong { color: var(--primary-light); }
+
+.outlook-calendar__time-axis,
+.outlook-calendar__day { position: relative; }
+.outlook-calendar__time-axis {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: #111827;
+  border-right: 1px solid rgba(255,255,255,0.12);
+}
+
+.outlook-calendar__time-axis span {
+  position: absolute;
+  right: 7px;
+  transform: translateY(-50%);
+  color: var(--text-subtle);
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+.outlook-calendar__time-axis span:first-child { transform: translateY(-2px); }
+.outlook-calendar__time-axis .outlook-calendar__midnight { transform: translateY(-100%); }
+
+.outlook-calendar__day {
+  cursor: crosshair;
+  overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.012);
+}
+.outlook-calendar__day.is-today { background: rgba(16,185,129,0.025); }
+.outlook-calendar__hour-line,
+.outlook-calendar__half-line { position: absolute; left: 0; right: 0; pointer-events: none; }
+.outlook-calendar__hour-line { border-top: 1px solid rgba(255,255,255,0.1); }
+.outlook-calendar__half-line { border-top: 1px dashed rgba(255,255,255,0.045); }
+.outlook-calendar__past { position: absolute; inset: 0 0 auto; background: rgba(3,7,18,0.24); pointer-events: none; }
+.outlook-calendar__now { position: absolute; left: 0; right: 0; z-index: 4; border-top: 2px solid #fb7185; pointer-events: none; }
+.outlook-calendar__now i { position: absolute; left: -4px; top: -5px; width: 8px; height: 8px; border-radius: 50%; background: #fb7185; }
+
+.outlook-calendar__event {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 5px 7px;
+  overflow: hidden;
+  text-align: left;
+  color: #f8fafc;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.13);
+  border-left: 3px solid #06b6d4;
+  border-radius: 7px;
+  background: linear-gradient(135deg, rgba(6,182,212,0.3), rgba(8,145,178,0.13));
+}
+.outlook-calendar__event.is-open { border-left-color: #f59e0b; background: linear-gradient(135deg, rgba(245,158,11,0.3), rgba(217,119,6,0.14)); }
+.outlook-calendar__event.is-mine { border-color: rgba(52,211,153,0.8); }
+.outlook-calendar__event:hover { filter: brightness(1.2); z-index: 6; }
+.outlook-calendar__event.is-class {
+  z-index: 2;
+  cursor: default;
+  border: 1px solid rgba(196,181,253,0.48);
+  border-left: 3px solid #a78bfa;
+  background: repeating-linear-gradient(135deg, rgba(139,92,246,0.22) 0 8px, rgba(109,40,217,0.13) 8px 16px);
+}
+.outlook-calendar__event.is-class:hover { filter: none; z-index: 2; }
+.outlook-calendar__event.is-class strong svg { color: #c4b5fd; flex: 0 0 auto; }
+.outlook-calendar__event strong { gap: 4px; font-size: 0.67rem; line-height: 1.2; white-space: nowrap; }
+.outlook-calendar__event.is-open strong svg { color: #fbbf24; flex: 0 0 auto; }
+.outlook-calendar__event.is-private strong svg { color: #67e8f9; flex: 0 0 auto; }
+.outlook-calendar__event span { max-width: 100%; overflow: hidden; color: rgba(255,255,255,0.8); font-size: 0.62rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.firebase-error-banner {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-md);
+  background: rgba(127, 29, 29, 0.3);
+  color: #fecaca;
+  font-size: 0.85rem;
+}
+
+.auth-loading {
+  min-height: 55vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.auth-loading strong { color: #fff; font-size: 1.2rem; }
+.auth-loading__icon { font-size: 2rem; }
+
+@media (max-width: 620px) {
+  .outlook-calendar { padding: 14px; }
+  .outlook-calendar__header { align-items: flex-start; flex-direction: column; }
+  .outlook-calendar__legend { justify-content: flex-start; gap: 10px; }
+  .outlook-calendar__scroll { max-height: 70vh; }
+}
