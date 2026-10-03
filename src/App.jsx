@@ -239,7 +239,7 @@ export default function App() {
             onOpenProfile={() => setShowProfileModal(true)}
           />
 
-          {/* VIEW SWITCHER TABS (Daily Schedule vs Outlook Calendar View) */}
+          {/* VIEW SWITCHER TABS (Daily Schedule vs Court Calendar View) */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
@@ -282,7 +282,7 @@ export default function App() {
               />
             </>
           ) : (
-            /* Outlook Proportional Calendar View */
+            /* Court Calendar View */
             <CalendarView
               bookings={bookings}
               currentUser={currentUser}
