@@ -18,15 +18,16 @@ import {
   cancelBooking,
   joinOpenMatch,
   leaveOpenMatch,
-  resetDemoData
+  resetDemoData,
+  saveBookings
 } from './utils/storage';
 import { getFormattedDate } from './data/mockData';
-import { isValidPhoneNumber } from './utils/profile';
+import { isValidPhoneNumber, updateBookingPhoneReferences } from './utils/profile';
 import { firebaseAuth, isFirebaseConfigured } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import {
   subscribeToBookings, createFirestoreBooking, updateFirestoreBooking, deleteFirestoreBooking,
-  updateFirestorePlayers, saveFirestoreUser, getFirestoreUser
+  updateFirestorePlayers, saveFirestoreUser, getFirestoreUser, updateFirestoreUserPhoneInBookings
 } from './utils/firebaseBookings';
 
 export default function App() {
@@ -332,6 +333,7 @@ export default function App() {
           {showProfileModal && (
             <ProfileModal
               currentUser={currentUser}
+              bookings={bookings}
               onClose={() => { setShowProfileModal(false); setRequirePhoneForBooking(false); setPendingBookingSlot(null); }}
               requirePhone={requirePhoneForBooking}
               onPhoneAdded={() => {
@@ -344,7 +346,18 @@ export default function App() {
               onResetDemoData={handleResetDemoData}
               demoMode={!isFirebaseConfigured}
               onUserUpdate={async (updated) => {
+                const previousUser = currentUser;
                 const savedUser = isFirebaseConfigured ? await saveFirestoreUser(updated.uid, updated) : updated;
+                if (previousUser.phone !== savedUser.phone) {
+                  if (isFirebaseConfigured) {
+                    await updateFirestoreUserPhoneInBookings(savedUser.uid, previousUser.phone, savedUser.phone);
+                    setBookings((current) => updateBookingPhoneReferences(current, previousUser, savedUser));
+                  } else {
+                    const nextBookings = updateBookingPhoneReferences(bookings, previousUser, savedUser);
+                    saveBookings(nextBookings);
+                    setBookings(nextBookings);
+                  }
+                }
                 setCurrentUser(savedUser);
                 return savedUser;
               }}

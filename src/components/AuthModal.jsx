@@ -13,6 +13,7 @@ export default function AuthModal({ onLoginSuccess }) {
   const [name, setName] = useState('');
   const [flatNo, setFlatNo] = useState('');
   const [phone, setPhone] = useState('');
+  const [playerLevel, setPlayerLevel] = useState('Intermediate');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,6 +45,7 @@ export default function AuthModal({ onLoginSuccess }) {
         email: account.email || '',
         name: existingProfile?.name || account.displayName || '',
         flatNo: existingProfile?.flatNo || '',
+        playerLevel: existingProfile?.playerLevel || 'Intermediate',
         avatar: googlePhoto,
         googlePhotoURL: account.photoURL || ''
       };
@@ -57,6 +59,7 @@ export default function AuthModal({ onLoginSuccess }) {
         setName(identity.name);
         setFlatNo(identity.flatNo);
         setPhone(identity.phone);
+        setPlayerLevel(identity.playerLevel);
         setStep('register');
       }
     } catch (err) {
@@ -96,6 +99,7 @@ export default function AuthModal({ onLoginSuccess }) {
       name: name.trim(),
       flatNo: flatNo.trim().toUpperCase(),
       phone: normalizePhoneNumber(phone),
+      playerLevel,
       avatar: googleProfile?.googlePhotoURL || '🏸',
       registeredAt: new Date().toISOString()
     };
@@ -172,6 +176,15 @@ export default function AuthModal({ onLoginSuccess }) {
               <label className="input-label">Phone Number</label>
               <input type="tel" className="input-field" autoComplete="tel" placeholder="Include country code if needed" value={phone} onChange={(event) => setPhone(event.target.value)} required />
               <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Other residents can see it when you book.</small>
+            </div>
+            <div className="input-group">
+              <label className="input-label">Player Level</label>
+              <select className="input-field" value={playerLevel} onChange={(event) => setPlayerLevel(event.target.value)}>
+                <option value="All Welcome">Casual / All Welcome</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
             </div>
             <div className="input-group">
               <label className="input-label">Tower & Flat Number</label>

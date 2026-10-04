@@ -1,5 +1,5 @@
 import {
-  collection, doc, getDoc, getDocs, onSnapshot, query, runTransaction, setDoc, where
+  collection, doc, getDoc, getDocs, onSnapshot, query, runTransaction, setDoc, where, writeBatch
 } from 'firebase/firestore';
 import { firestore } from '../firebase';
 import { getEndMinutes, getStartMinutes, validateBookingRange } from './storage';
@@ -110,6 +110,37 @@ export const saveFirestoreUser = async (uid, profile) => {
 export const getFirestoreUser = async (uid) => {
   const result = await getDoc(doc(firestore, 'users', uid));
   return result.exists() ? result.data() : null;
+};
+
+export const updateFirestoreUserPhoneInBookings = async (uid, oldPhone, newPhone) => {
+  const [hosted, joined] = await Promise.all([
+    getDocs(query(bookingsRef(), where('bookedBy.uid', '==', uid))),
+    getDocs(query(bookingsRef(), where('playerUids', 'array-contains', uid)))
+  ]);
+  const snapshots = new Map([...hosted.docs, ...joined.docs].map((snapshot) => [snapshot.id, snapshot]));
+  const updates = [];
+  snapshots.forEach((snapshot) => {
+    const booking = snapshot.data();
+    const fields = {};
+    if (booking.bookedBy?.uid === uid && booking.bookedBy.phone !== newPhone) {
+      fields.bookedBy = { ...booking.bookedBy, phone: newPhone };
+    }
+    if (Array.isArray(booking.players)) {
+      const players = booking.players.map((player) => (
+        (player.uid === uid || (!player.uid && oldPhone && player.phone === oldPhone))
+          ? { ...player, phone: newPhone }
+          : player
+      ));
+      if (players.some((player, index) => player.phone !== booking.players[index].phone)) fields.players = players;
+    }
+    if (Object.keys(fields).length) updates.push({ ref: snapshot.ref, fields });
+  });
+
+  for (let index = 0; index < updates.length; index += 450) {
+    const batch = writeBatch(firestore);
+    updates.slice(index, index + 450).forEach(({ ref, fields }) => batch.update(ref, fields));
+    await batch.commit();
+  }
 };
 
 export const deleteFirestoreBooking = async (bookingId) => {

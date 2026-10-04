@@ -59,7 +59,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
   const [matchType, setMatchType] = useState('Doubles');
   const [isUnlimited, setIsUnlimited] = useState(true); // Default: No limit checked!
   const [maxPlayers, setMaxPlayers] = useState(4);
-  const [skillLevel, setSkillLevel] = useState('Intermediate');
+  const [skillLevel, setSkillLevel] = useState(currentUser?.playerLevel || 'Intermediate');
   const [note, setNote] = useState('');
 
   const [error, setError] = useState('');

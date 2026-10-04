@@ -2,12 +2,24 @@ import React, { useState } from 'react';
 import { X, RefreshCw, LogOut, Save } from 'lucide-react';
 import { saveRegisteredUser, setUserSession } from '../utils/storage';
 import { isValidPhoneNumber, normalizePhoneNumber } from '../utils/profile';
+import { getEndMinutes } from '../utils/storage';
+import { getFormattedDate } from '../data/mockData';
 
-export default function ProfileModal({ currentUser, onClose, onLogout, onResetDemoData, onUserUpdate, onPhoneAdded, requirePhone = false, demoMode = true }) {
+export default function ProfileModal({ currentUser, bookings = [], onClose, onLogout, onResetDemoData, onUserUpdate, onPhoneAdded, requirePhone = false, demoMode = true }) {
   const [name, setName] = useState(currentUser?.name || '');
   const [flatNo, setFlatNo] = useState(currentUser?.flatNo || '');
   const [phone, setPhone] = useState(currentUser?.phone || '');
+  const [playerLevel, setPlayerLevel] = useState(currentUser?.playerLevel || 'Intermediate');
   const [isSaved, setIsSaved] = useState(false);
+
+  const now = new Date();
+  const today = getFormattedDate(0);
+  const isMine = (entry) => (currentUser?.uid && entry?.uid === currentUser.uid) || entry?.phone === currentUser?.phone;
+  const myBookings = bookings.filter((booking) => isMine(booking.bookedBy) || booking.players?.some(isMine));
+  const completedBookings = myBookings.filter((booking) => booking.date < today || (booking.date === today && getEndMinutes(booking.endTime) <= now.getHours() * 60 + now.getMinutes()));
+  const hostedGames = completedBookings.filter((booking) => isMine(booking.bookedBy));
+  const joinedGames = completedBookings.filter((booking) => !isMine(booking.bookedBy));
+  const upcomingBookings = myBookings.filter((booking) => booking.date > today || (booking.date === today && getEndMinutes(booking.endTime) > now.getHours() * 60 + now.getMinutes()));
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -19,7 +31,8 @@ export default function ProfileModal({ currentUser, onClose, onLogout, onResetDe
       ...currentUser,
       name: name.trim(),
       flatNo: flatNo.trim().toUpperCase(),
-      phone: normalizePhoneNumber(phone)
+      phone: normalizePhoneNumber(phone),
+      playerLevel
     };
     try {
       const savedUser = await onUserUpdate(updatedUser);
@@ -83,6 +96,13 @@ export default function ProfileModal({ currentUser, onClose, onLogout, onResetDe
             </div>
           </div>
 
+          <section className="profile-stats" aria-label="Your booking statistics">
+            <div><strong>{completedBookings.length}</strong><span>Games played</span></div>
+            <div><strong>{hostedGames.length}</strong><span>Hosted</span></div>
+            <div><strong>{joinedGames.length}</strong><span>Joined</span></div>
+            <div><strong>{upcomingBookings.length}</strong><span>Upcoming</span></div>
+          </section>
+
           <div className="input-group">
             <label className="input-label">Full Name</label>
             <input
@@ -98,6 +118,17 @@ export default function ProfileModal({ currentUser, onClose, onLogout, onResetDe
             <label className="input-label">Phone Number</label>
             <input type="tel" className="input-field" autoComplete="tel" placeholder="Include country code if needed" value={phone} onChange={(e) => setPhone(e.target.value)} required />
             <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Visible to other residents when you book.</small>
+          </div>
+
+          <div className="input-group">
+            <label className="input-label">Player Level</label>
+            <select className="input-field" value={playerLevel} onChange={(e) => setPlayerLevel(e.target.value)}>
+              <option value="All Welcome">Casual / All Welcome</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+            <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Used as the default level when you create an open match.</small>
           </div>
 
           <div className="input-group">
