@@ -491,3 +491,5 @@ h1, h2, h3, h4, .font-heading {
 .resident-profile-modal__phone a:hover { text-decoration: underline; }
 .profile-link { border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-align: inherit; cursor: pointer; }
 .profile-link:hover { color: var(--primary-light); text-decoration: underline; text-underline-offset: 2px; }
+
+.badge-past { background: rgba(148,163,184,.14); color: #cbd5e1; border: 1px solid rgba(148,163,184,.2); }

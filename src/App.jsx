@@ -272,7 +272,7 @@ export default function App() {
               className={`tab-btn ${viewMode === 'calendar' ? 'active tab-primary' : ''}`}
               onClick={() => setViewMode('calendar')}
             >
-              <CalendarIcon size={15} /> Outlook Calendar
+              <CalendarIcon size={15} /> Court Calendar
             </button>
           </div>
 

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Plus, Users, Lock, Clock, ChevronRight, Flame, Calendar as CalendarIcon } from 'lucide-react';
+import { Plus, Users, Lock, Clock, ChevronRight, Flame, History, Calendar as CalendarIcon } from 'lucide-react';
 import { getFormattedDate } from '../data/mockData';
 import { parseTimeToMinutes, getEndMinutes } from '../utils/storage';
 import ResidentProfileModal from './ResidentProfileModal';
 
 export default function TimetableGrid({ selectedOffset, bookings, currentUser, onSelectSlot }) {
-  const [filter, setFilter] = useState('all'); // 'all' | 'open' | 'mine'
+  const [filter, setFilter] = useState('all'); // 'all' | 'open' | 'mine' | 'past'
   const [viewingProfile, setViewingProfile] = useState(null);
 
   const dateStr = getFormattedDate(selectedOffset);
@@ -16,19 +16,21 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
   // Get all bookings for the selected date
   const dateBookings = bookings.filter((b) => b.date === dateStr);
 
-  // Filter out past slots for today
-  const activeBookings = dateBookings.filter((b) => {
-    if (!isToday) return true;
-    const endMins = getEndMinutes(b.endTime);
-    return endMins > currentMinutesNow; // Hide expired/past slots!
-  }).sort((a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime));
+  const today = getFormattedDate(0);
+  const pastBookings = dateBookings.filter((booking) => (
+    dateStr < today || (isToday && getEndMinutes(booking.endTime) <= currentMinutesNow)
+  )).sort((a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime));
 
-  // Filter based on selected tab
-  const filteredBookings = activeBookings.filter((b) => {
-    const isMine = b.bookedBy.phone === currentUser.phone || (b.players && b.players.some(p => p.phone === currentUser.phone));
-    if (filter === 'all') return true;
-    if (filter === 'open') return b.type === 'open';
-    if (filter === 'mine') return isMine; // My slots only!
+  const activeBookings = dateBookings.filter((booking) => (
+    dateStr >= today && (!isToday || getEndMinutes(booking.endTime) > currentMinutesNow)
+  )).sort((a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime));
+
+  // The personal and open filters only apply to upcoming or in-progress bookings.
+  const filteredBookings = (filter === 'past' ? pastBookings : activeBookings).filter((booking) => {
+    const isMine = booking.bookedBy.phone === currentUser.phone || booking.players?.some((player) => player.phone === currentUser.phone);
+    if (filter === 'all' || filter === 'past') return true;
+    if (filter === 'open') return booking.type === 'open';
+    if (filter === 'mine') return isMine;
     return true;
   });
 
@@ -85,14 +87,21 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
           onClick={() => setFilter('open')}
           style={{ whiteSpace: 'nowrap', padding: '6px 14px', fontSize: '0.8rem' }}
         >
-          <Users size={13} /> Open Games ({activeBookings.filter(b => b.type === 'open').length})
+          <Users size={13} /> Open Bookings ({activeBookings.filter(b => b.type === 'open').length})
         </button>
         <button
           className={`tab-btn ${filter === 'mine' ? 'active' : ''}`}
           onClick={() => setFilter('mine')}
           style={{ whiteSpace: 'nowrap', padding: '6px 14px', fontSize: '0.8rem' }}
         >
-          My Slots ({activeBookings.filter(b => b.bookedBy.phone === currentUser.phone || (b.players && b.players.some(p => p.phone === currentUser.phone))).length})
+          My Slots ({activeBookings.filter((booking) => booking.bookedBy.phone === currentUser.phone || booking.players?.some((player) => player.phone === currentUser.phone)).length})
+        </button>
+        <button
+          className={`tab-btn ${filter === 'past' ? 'active' : ''}`}
+          onClick={() => setFilter('past')}
+          style={{ whiteSpace: 'nowrap', padding: '6px 14px', fontSize: '0.8rem' }}
+        >
+          <History size={13} /> Past Bookings ({pastBookings.length})
         </button>
       </div>
 
@@ -101,22 +110,27 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
         {filteredBookings.length === 0 ? (
           <div className="glass-panel" style={{ padding: '36px 20px', textAlign: 'center' }}>
             <CalendarIcon size={32} color="var(--primary-light)" style={{ marginBottom: '8px', opacity: 0.8 }} />
-            <h4 style={{ color: '#fff', fontSize: '1.05rem', fontWeight: 700 }}>No Bookings Yet for this Date</h4>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px', marginBottom: '16px' }}>
-              The court is completely open! Be the first to reserve your preferred timing.
+            <h4 style={{ color: '#fff', fontSize: '1.05rem', fontWeight: 700 }}>
+              {filter === 'past' ? 'No Past Bookings for this Date' : 'No Bookings Yet for this Date'}
+            </h4>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px', marginBottom: filter === 'past' ? 0 : '16px' }}>
+              {filter === 'past' ? 'Completed court bookings will appear here.' : 'The court is completely open! Be the first to reserve your preferred timing.'}
             </p>
-            <button
-              className="btn btn-primary"
-              onClick={() => onSelectSlot({ date: dateStr, startTime: '06:00 AM', endTime: '07:00 AM', booking: null })}
-            >
-              <Plus size={16} /> Book Court Now
-            </button>
+            {filter !== 'past' && (
+              <button
+                className="btn btn-primary"
+                onClick={() => onSelectSlot({ date: dateStr, startTime: '06:00 AM', endTime: '07:00 AM', booking: null })}
+              >
+                <Plus size={16} /> Book Court Now
+              </button>
+            )}
           </div>
         ) : (
           filteredBookings.map((b) => {
             const isOpen = b.type === 'open';
             const isPrivate = b.type === 'private';
-            const isMine = b.bookedBy.phone === currentUser.phone || (b.players && b.players.some(p => p.phone === currentUser.phone));
+            const isMine = b.bookedBy.phone === currentUser.phone || b.players?.some((player) => player.phone === currentUser.phone);
+            const isPastBooking = filter === 'past';
             const maxPlayers = b.matchInfo?.maxPlayers;
             const isUnlimited = maxPlayers === 'unlimited';
             const currentPlayersCount = b.players?.length || 1;
@@ -125,11 +139,12 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
             return (
               <div
                 key={b.id}
-                onClick={() => onSelectSlot({ date: dateStr, booking: b })}
+                onClick={() => { if (!isPastBooking) onSelectSlot({ date: dateStr, booking: b }); }}
                 className={`glass-panel booking-card${isMine ? ' is-mine' : ''}`}
                 style={{
                   padding: '16px',
-                  cursor: 'pointer',
+                  cursor: isPastBooking ? 'default' : 'pointer',
+                  opacity: isPastBooking ? 0.78 : 1,
                   borderLeft: isMine
                     ? '4px solid var(--primary)'
                     : isOpen
@@ -187,7 +202,9 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
                     )}
                   </div>
 
-                  <ChevronRight size={18} color="var(--text-subtle)" />
+                  {isPastBooking
+                    ? <span className="badge badge-past">Completed</span>
+                    : <ChevronRight size={18} color="var(--text-subtle)" />}
                 </div>
 
                 {/* Sub info */}
