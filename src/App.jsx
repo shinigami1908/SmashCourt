@@ -185,7 +185,8 @@ export default function App() {
       phone: currentUser.phone,
       name: currentUser.name,
       flatNo: currentUser.flatNo,
-      avatar: currentUser.avatar
+      avatar: currentUser.avatar,
+      playerLevel: currentUser.playerLevel || 'Intermediate'
     };
     if (isFirebaseConfigured) {
       await updateFirestorePlayers(bookingId, playerObj, 'join');
@@ -321,6 +322,7 @@ export default function App() {
               slotItem={activeSlotForDetails}
               selectedOffset={selectedOffset}
               currentUser={currentUser}
+              bookings={bookings}
               onClose={() => setActiveSlotForDetails(null)}
               onJoinMatch={handleJoinMatch}
               onLeaveMatch={handleLeaveMatch}
@@ -348,9 +350,9 @@ export default function App() {
               onUserUpdate={async (updated) => {
                 const previousUser = currentUser;
                 const savedUser = isFirebaseConfigured ? await saveFirestoreUser(updated.uid, updated) : updated;
-                if (previousUser.phone !== savedUser.phone) {
+                if (previousUser.phone !== savedUser.phone || previousUser.playerLevel !== savedUser.playerLevel) {
                   if (isFirebaseConfigured) {
-                    await updateFirestoreUserPhoneInBookings(savedUser.uid, previousUser.phone, savedUser.phone);
+                    await updateFirestoreUserPhoneInBookings(savedUser.uid, previousUser.phone, savedUser.phone, savedUser.playerLevel);
                     setBookings((current) => updateBookingPhoneReferences(current, previousUser, savedUser));
                   } else {
                     const nextBookings = updateBookingPhoneReferences(bookings, previousUser, savedUser);

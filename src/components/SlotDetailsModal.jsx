@@ -9,6 +9,7 @@ export default function SlotDetailsModal({
   slotItem,
   selectedOffset,
   currentUser,
+  bookings = [],
   onClose,
   onJoinMatch,
   onLeaveMatch,
@@ -532,7 +533,7 @@ export default function SlotDetailsModal({
           </div>
         )}
       </div>
-      <ResidentProfileModal profile={viewingProfile} onClose={() => setViewingProfile(null)} />
+      <ResidentProfileModal profile={viewingProfile} bookings={bookings} onClose={() => setViewingProfile(null)} />
     </div>
   );
 }

@@ -112,7 +112,7 @@ export const getFirestoreUser = async (uid) => {
   return result.exists() ? result.data() : null;
 };
 
-export const updateFirestoreUserPhoneInBookings = async (uid, oldPhone, newPhone) => {
+export const updateFirestoreUserPhoneInBookings = async (uid, oldPhone, newPhone, playerLevel) => {
   const [hosted, joined] = await Promise.all([
     getDocs(query(bookingsRef(), where('bookedBy.uid', '==', uid))),
     getDocs(query(bookingsRef(), where('playerUids', 'array-contains', uid)))
@@ -122,16 +122,16 @@ export const updateFirestoreUserPhoneInBookings = async (uid, oldPhone, newPhone
   snapshots.forEach((snapshot) => {
     const booking = snapshot.data();
     const fields = {};
-    if (booking.bookedBy?.uid === uid && booking.bookedBy.phone !== newPhone) {
-      fields.bookedBy = { ...booking.bookedBy, phone: newPhone };
+    if (booking.bookedBy?.uid === uid && (booking.bookedBy.phone !== newPhone || booking.bookedBy.playerLevel !== playerLevel)) {
+      fields.bookedBy = { ...booking.bookedBy, phone: newPhone, playerLevel };
     }
     if (Array.isArray(booking.players)) {
       const players = booking.players.map((player) => (
         (player.uid === uid || (!player.uid && oldPhone && player.phone === oldPhone))
-          ? { ...player, phone: newPhone }
+          ? { ...player, phone: newPhone, playerLevel }
           : player
       ));
-      if (players.some((player, index) => player.phone !== booking.players[index].phone)) fields.players = players;
+      if (players.some((player, index) => player.phone !== booking.players[index].phone || player.playerLevel !== booking.players[index].playerLevel)) fields.players = players;
     }
     if (Object.keys(fields).length) updates.push({ ref: snapshot.ref, fields });
   });

@@ -123,7 +123,7 @@ export default function ProfileModal({ currentUser, bookings = [], onClose, onLo
           <div className="input-group">
             <label className="input-label">Player Level</label>
             <select className="input-field" value={playerLevel} onChange={(e) => setPlayerLevel(e.target.value)}>
-              <option value="All Welcome">Casual / All Welcome</option>
+              <option value="All Welcome">Casual</option>
               <option value="Beginner">Beginner</option>
               <option value="Intermediate">Intermediate</option>
               <option value="Advanced">Advanced</option>

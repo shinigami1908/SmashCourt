@@ -518,3 +518,5 @@ h1, h2, h3, h4, .font-heading {
   .profile-stats > div { padding-inline: 2px; }
   .profile-stats span { font-size: .58rem; }
 }
+
+.resident-profile-modal__level { margin-top: 3px; padding: 4px 9px; border-radius: var(--radius-full); background: rgba(16,185,129,.12); color: var(--primary-light) !important; font-size: .76rem !important; font-weight: 700; }

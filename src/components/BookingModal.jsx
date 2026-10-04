@@ -121,7 +121,8 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
         phone: currentUser.phone,
         name: currentUser.name,
         flatNo: currentUser.flatNo,
-        avatar: currentUser.avatar
+        avatar: currentUser.avatar,
+        playerLevel: currentUser.playerLevel || 'Intermediate'
       },
       note: note.trim(),
       createdAt: new Date().toISOString()
@@ -141,6 +142,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
           name: currentUser.name,
           flatNo: currentUser.flatNo,
           avatar: currentUser.avatar,
+          playerLevel: currentUser.playerLevel || 'Intermediate',
           role: 'Host'
         }
       ];
@@ -369,7 +371,7 @@ export default function BookingModal({ slotItem, selectedOffset, currentUser, on
                     value={skillLevel}
                     onChange={(e) => setSkillLevel(e.target.value)}
                   >
-                    <option value="All Welcome">Casual / All Welcome</option>
+                    <option value="All Welcome">Casual</option>
                     <option value="Beginner">Beginner Friendly</option>
                     <option value="Intermediate">Intermediate</option>
                     <option value="Advanced">Advanced / Competitive</option>

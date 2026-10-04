@@ -301,7 +301,7 @@ export default function TimetableGrid({ selectedOffset, bookings, currentUser, o
           })
         )}
       </div>
-      <ResidentProfileModal profile={viewingProfile} onClose={() => setViewingProfile(null)} />
+      <ResidentProfileModal profile={viewingProfile} bookings={bookings} onClose={() => setViewingProfile(null)} />
     </div>
   );
 }

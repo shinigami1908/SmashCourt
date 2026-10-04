@@ -15,16 +15,16 @@ export const updateBookingPhoneReferences = (bookings, previousUser, nextUser) =
   return bookings.map((booking) => {
     let changed = false;
     let bookedBy = booking.bookedBy;
-    if (belongsToUser(bookedBy) && bookedBy.phone !== nextUser.phone) {
-      bookedBy = { ...bookedBy, phone: nextUser.phone };
+    if (belongsToUser(bookedBy) && (bookedBy.phone !== nextUser.phone || bookedBy.playerLevel !== nextUser.playerLevel)) {
+      bookedBy = { ...bookedBy, phone: nextUser.phone, playerLevel: nextUser.playerLevel || 'Intermediate' };
       changed = true;
     }
     let players = booking.players;
     if (Array.isArray(players)) {
       players = players.map((player) => {
-        if (!belongsToUser(player) || player.phone === nextUser.phone) return player;
+        if (!belongsToUser(player) || (player.phone === nextUser.phone && player.playerLevel === (nextUser.playerLevel || 'Intermediate'))) return player;
         changed = true;
-        return { ...player, phone: nextUser.phone };
+        return { ...player, phone: nextUser.phone, playerLevel: nextUser.playerLevel || 'Intermediate' };
       });
     }
     return changed ? { ...booking, bookedBy, players } : booking;
