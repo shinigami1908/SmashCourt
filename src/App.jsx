@@ -22,12 +22,12 @@ import {
   saveBookings
 } from './utils/storage';
 import { getFormattedDate } from './data/mockData';
-import { isValidPhoneNumber, updateBookingPhoneReferences } from './utils/profile';
+import { isValidPhoneNumber, updateBookingResidentProfiles } from './utils/profile';
 import { firebaseAuth, isFirebaseConfigured } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import {
   subscribeToBookings, createFirestoreBooking, updateFirestoreBooking, deleteFirestoreBooking,
-  updateFirestorePlayers, saveFirestoreUser, getFirestoreUser, updateFirestoreUserPhoneInBookings
+  updateFirestorePlayers, saveFirestoreUser, getFirestoreUser, syncFirestoreResidentProfileToBookings
 } from './utils/firebaseBookings';
 
 export default function App() {
@@ -350,15 +350,20 @@ export default function App() {
               onUserUpdate={async (updated) => {
                 const previousUser = currentUser;
                 const savedUser = isFirebaseConfigured ? await saveFirestoreUser(updated.uid, updated) : updated;
-                if (previousUser.phone !== savedUser.phone || previousUser.playerLevel !== savedUser.playerLevel) {
+                const publicProfileChanged = ['name', 'flatNo', 'phone', 'avatar', 'playerLevel']
+                  .some((field) => previousUser[field] !== savedUser[field]);
+                if (publicProfileChanged) {
                   if (isFirebaseConfigured) {
-                    await updateFirestoreUserPhoneInBookings(savedUser.uid, previousUser.phone, savedUser.phone, savedUser.playerLevel);
-                    setBookings((current) => updateBookingPhoneReferences(current, previousUser, savedUser));
+                    await syncFirestoreResidentProfileToBookings(savedUser.uid, previousUser, savedUser);
+                    setBookings((current) => updateBookingResidentProfiles(current, previousUser, savedUser));
                   } else {
-                    const nextBookings = updateBookingPhoneReferences(bookings, previousUser, savedUser);
+                    const nextBookings = updateBookingResidentProfiles(bookings, previousUser, savedUser);
                     saveBookings(nextBookings);
                     setBookings(nextBookings);
                   }
+                  setActiveSlotForDetails((current) => current?.booking
+                    ? { ...current, booking: updateBookingResidentProfiles([current.booking], previousUser, savedUser)[0] }
+                    : current);
                 }
                 setCurrentUser(savedUser);
                 return savedUser;

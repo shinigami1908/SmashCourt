@@ -112,26 +112,39 @@ export const getFirestoreUser = async (uid) => {
   return result.exists() ? result.data() : null;
 };
 
-export const updateFirestoreUserPhoneInBookings = async (uid, oldPhone, newPhone, playerLevel) => {
+export const syncFirestoreResidentProfileToBookings = async (uid, previousUser, nextUser) => {
+  const latestProfile = {
+    name: nextUser?.name || '',
+    flatNo: nextUser?.flatNo || '',
+    phone: nextUser?.phone || '',
+    avatar: nextUser?.avatar || '',
+    playerLevel: nextUser?.playerLevel || 'Intermediate'
+  };
+  const belongsToUser = (entry) => entry?.uid === uid
+    || (!entry?.uid && previousUser?.phone && entry?.phone === previousUser.phone);
+  const withLatestProfile = (entry) => ({ ...entry, ...latestProfile });
+  const profileIsCurrent = (entry) => Object.entries(latestProfile).every(([key, value]) => entry?.[key] === value);
   const [hosted, joined] = await Promise.all([
     getDocs(query(bookingsRef(), where('bookedBy.uid', '==', uid))),
     getDocs(query(bookingsRef(), where('playerUids', 'array-contains', uid)))
   ]);
-  const snapshots = new Map([...hosted.docs, ...joined.docs].map((snapshot) => [snapshot.id, snapshot]));
+  // Include pre-UID host records so older bookings still get the latest public profile.
+  const legacyHosted = previousUser?.phone
+    ? await getDocs(query(bookingsRef(), where('bookedBy.phone', '==', previousUser.phone)))
+    : { docs: [] };
+  const snapshots = new Map([...hosted.docs, ...joined.docs, ...legacyHosted.docs].map((snapshot) => [snapshot.id, snapshot]));
   const updates = [];
   snapshots.forEach((snapshot) => {
     const booking = snapshot.data();
     const fields = {};
-    if (booking.bookedBy?.uid === uid && (booking.bookedBy.phone !== newPhone || booking.bookedBy.playerLevel !== playerLevel)) {
-      fields.bookedBy = { ...booking.bookedBy, phone: newPhone, playerLevel };
+    if (belongsToUser(booking.bookedBy) && !profileIsCurrent(booking.bookedBy)) {
+      fields.bookedBy = withLatestProfile(booking.bookedBy);
     }
     if (Array.isArray(booking.players)) {
       const players = booking.players.map((player) => (
-        (player.uid === uid || (!player.uid && oldPhone && player.phone === oldPhone))
-          ? { ...player, phone: newPhone, playerLevel }
-          : player
+        belongsToUser(player) ? withLatestProfile(player) : player
       ));
-      if (players.some((player, index) => player.phone !== booking.players[index].phone || player.playerLevel !== booking.players[index].playerLevel)) fields.players = players;
+      if (players.some((player, index) => belongsToUser(booking.players[index]) && !profileIsCurrent(booking.players[index]))) fields.players = players;
     }
     if (Object.keys(fields).length) updates.push({ ref: snapshot.ref, fields });
   });

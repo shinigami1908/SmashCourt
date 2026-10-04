@@ -6,25 +6,34 @@ export const isValidPhoneNumber = (value) => {
   return /^[+]?[-\d\s().]+$/.test(phone) && digits.length >= 8 && digits.length <= 15;
 };
 
-export const updateBookingPhoneReferences = (bookings, previousUser, nextUser) => {
+export const updateBookingResidentProfiles = (bookings, previousUser, nextUser) => {
+  const latestProfile = {
+    name: nextUser?.name || '',
+    flatNo: nextUser?.flatNo || '',
+    phone: nextUser?.phone || '',
+    avatar: nextUser?.avatar || '',
+    playerLevel: nextUser?.playerLevel || 'Intermediate'
+  };
   const belongsToUser = (entry) => (
     (nextUser?.uid && entry?.uid === nextUser.uid)
-    || (previousUser?.phone && entry?.phone === previousUser.phone)
+    || (!entry?.uid && previousUser?.phone && entry?.phone === previousUser.phone)
   );
+  const withLatestProfile = (entry) => ({ ...entry, ...latestProfile });
+  const profileIsCurrent = (entry) => Object.entries(latestProfile).every(([key, value]) => entry?.[key] === value);
 
   return bookings.map((booking) => {
     let changed = false;
     let bookedBy = booking.bookedBy;
-    if (belongsToUser(bookedBy) && (bookedBy.phone !== nextUser.phone || bookedBy.playerLevel !== nextUser.playerLevel)) {
-      bookedBy = { ...bookedBy, phone: nextUser.phone, playerLevel: nextUser.playerLevel || 'Intermediate' };
+    if (belongsToUser(bookedBy) && !profileIsCurrent(bookedBy)) {
+      bookedBy = withLatestProfile(bookedBy);
       changed = true;
     }
     let players = booking.players;
     if (Array.isArray(players)) {
       players = players.map((player) => {
-        if (!belongsToUser(player) || (player.phone === nextUser.phone && player.playerLevel === (nextUser.playerLevel || 'Intermediate'))) return player;
+        if (!belongsToUser(player) || profileIsCurrent(player)) return player;
         changed = true;
-        return { ...player, phone: nextUser.phone, playerLevel: nextUser.playerLevel || 'Intermediate' };
+        return withLatestProfile(player);
       });
     }
     return changed ? { ...booking, bookedBy, players } : booking;
