@@ -1,10 +1,8 @@
 export const normalizePhoneNumber = (value) => String(value || '').trim();
 
-export const isValidPhoneNumber = (value) => {
-  const phone = normalizePhoneNumber(value);
-  const digits = phone.replace(/\D/g, '');
-  return /^[+]?[-\d\s().]+$/.test(phone) && digits.length >= 8 && digits.length <= 15;
-};
+export const isValidPhoneNumber = (value) => /^\d{10}$/.test(normalizePhoneNumber(value));
+
+export const isValidFullName = (value) => /^[\p{L}\p{M}]+(?:\s+[\p{L}\p{M}]+)*$/u.test(String(value || '').trim());
 
 export const updateBookingResidentProfiles = (bookings, previousUser, nextUser) => {
   const latestProfile = {

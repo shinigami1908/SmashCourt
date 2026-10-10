@@ -4,7 +4,7 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { isFirebaseConfigured, firebaseAuth } from '../firebase';
 import { getRegisteredUser, saveRegisteredUser, setUserSession } from '../utils/storage';
 import { getFirestoreUser, saveFirestoreUser } from '../utils/firebaseBookings';
-import { isValidPhoneNumber, normalizePhoneNumber } from '../utils/profile';
+import { isValidFullName, isValidPhoneNumber, normalizePhoneNumber } from '../utils/profile';
 
 export default function AuthModal({ onLoginSuccess }) {
   const [step, setStep] = useState('sign-in');
@@ -87,8 +87,12 @@ export default function AuthModal({ onLoginSuccess }) {
 
   const handleRegister = async (event) => {
     event.preventDefault();
-    if (!name.trim() || !flatNo.trim() || !isValidPhoneNumber(phone)) {
-      setError('Enter your name, flat number, and a valid phone number to finish your resident profile.');
+    if (!isValidFullName(name)) {
+      setError('Full name can contain letters and spaces only.');
+      return;
+    }
+    if (!flatNo.trim() || !isValidPhoneNumber(phone)) {
+      setError('Enter your flat number and a 10-digit phone number using numbers only to finish your resident profile.');
       return;
     }
     setError('');
@@ -132,7 +136,7 @@ export default function AuthModal({ onLoginSuccess }) {
           </div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff' }}>Welcome to SmashCourt</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
-            {step === 'register' ? 'Finish your Greenwood Heights resident profile' : 'Society Court Booking & Matchmaking'}
+            {step === 'register' ? 'Finish your Meda Heights resident profile' : 'Society Court Booking & Matchmaking'}
           </p>
         </div>
 
@@ -170,12 +174,12 @@ export default function AuthModal({ onLoginSuccess }) {
             </div>
             <div className="input-group">
               <label className="input-label">Full Name</label>
-              <input className="input-field" value={name} onChange={(event) => setName(event.target.value)} required />
+              <input className="input-field" value={name} onChange={(event) => setName(event.target.value.replace(/[^\p{L}\p{M}\s]/gu, ''))} required />
             </div>
             <div className="input-group">
               <label className="input-label">Phone Number</label>
-              <input type="tel" className="input-field" autoComplete="tel" placeholder="Include country code if needed" value={phone} onChange={(event) => setPhone(event.target.value)} required />
-              <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Other residents can see it when you book.</small>
+              <input type="tel" className="input-field" autoComplete="tel" inputMode="numeric" pattern="[0-9]{10}" maxLength={10} placeholder="10-digit phone number" value={phone} onChange={(event) => setPhone(event.target.value.replace(/\D/g, '').slice(0, 10))} required />
+              <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Enter 10 digits. Other residents can see it when you book.</small>
             </div>
             <div className="input-group">
               <label className="input-label">Player Level</label>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, RefreshCw, LogOut, Save } from 'lucide-react';
 import { saveRegisteredUser, setUserSession } from '../utils/storage';
-import { isValidPhoneNumber, normalizePhoneNumber } from '../utils/profile';
+import { isValidFullName, isValidPhoneNumber, normalizePhoneNumber } from '../utils/profile';
 import { getEndMinutes } from '../utils/storage';
 import { getFormattedDate } from '../data/mockData';
 
@@ -23,8 +23,12 @@ export default function ProfileModal({ currentUser, bookings = [], onClose, onLo
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!isValidFullName(name)) {
+      alert('Full name can contain letters and spaces only.');
+      return;
+    }
     if (!isValidPhoneNumber(phone)) {
-      alert('Enter a valid phone number (8–15 digits).');
+      alert('Enter a 10-digit phone number using numbers only.');
       return;
     }
     const updatedUser = {
@@ -109,15 +113,15 @@ export default function ProfileModal({ currentUser, bookings = [], onClose, onLo
               type="text"
               className="input-field"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value.replace(/[^\p{L}\p{M}\s]/gu, ''))}
               required
             />
           </div>
 
           <div className="input-group">
             <label className="input-label">Phone Number</label>
-            <input type="tel" className="input-field" autoComplete="tel" placeholder="Include country code if needed" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-            <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Visible to other residents when you book.</small>
+            <input type="tel" className="input-field" autoComplete="tel" inputMode="numeric" pattern="[0-9]{10}" maxLength={10} placeholder="10-digit phone number" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} required />
+            <small style={{ color: 'var(--text-subtle)', display: 'block', marginTop: '5px' }}>Enter 10 digits. Visible to other residents when you book.</small>
           </div>
 
           <div className="input-group">
